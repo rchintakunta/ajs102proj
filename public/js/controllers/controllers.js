@@ -1,5 +1,26 @@
 'use strict';
-angular.module('app.controllers', ['chart.js']).controller('StockCtrl', function ($scope, $http) {
+angular.module('app.controllers', ['chart.js'])
+
+    .directive('capitalize', function() {
+        return {
+            require: 'ngModel',
+            link: function(scope, element, attrs, modelCtrl) {
+                var capitalize = function(inputValue) {
+                    if(inputValue == undefined) inputValue = '';
+                    var capitalized = inputValue.toUpperCase();
+                    if(capitalized !== inputValue) {
+                        modelCtrl.$setViewValue(capitalized);
+                        modelCtrl.$render();
+                    }
+                    return capitalized;
+                }
+                modelCtrl.$parsers.push(capitalize);
+                capitalize(scope[attrs.ngModel]);  // capitalize initial value
+            }
+        };
+    })
+
+    .controller('StockCtrl', function ($scope, $http) {
 
     var self = this;
     self.symbol = "";
@@ -94,7 +115,7 @@ angular.module('app.controllers', ['chart.js']).controller('StockCtrl', function
             });
 
         $scope.series = [];
-        $scope.series.push(self.symbol);
+        $scope.series.push(self.symbol.toUpperCase());
         /*$scope.onClick = function (points, evt) {
             console.log(points, evt);
         };*/
@@ -113,5 +134,7 @@ angular.module('app.controllers', ['chart.js']).controller('StockCtrl', function
 
     }
 
-})
+}
+
+)
 
