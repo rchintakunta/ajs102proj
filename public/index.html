@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html lang='en' ng-app='app'>
+
+<head>
+    <meta charset="utf-8">
+    <title>RC-AJS102 Yahoo Finance API</title>
+    <!-- CSS -->
+    <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.css'/>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/controllers/controllers.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script>
+        $(function() {
+            $( ".datePicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+        });
+    </script>
+
+    <style type="text/css">
+        .big-checkbox {width: 19px; height: 19px;}
+        .red {
+            color: red;
+        }
+        .green {
+            color: green;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<form id="form1" method="post" ng-controller="StockCtrl as sctrl">
+    <div class="row">
+        <div class="form-group col-lg-4">
+            <label>Ticker Symbol</label>
+            <input type="text" placeholder="Enter Symbol" class="form-control" name="symbol" ng-model="sctrl.symbol"/>
+        </div>
+    </div>
+    <div class="row">
+        <button class="btn btn-primary" ng-click="sctrl.getData()">Get Price</button>
+        <button class="btn btn-primary" ng-click="sctrl.clearData()">Clear</button>
+    </div>
+
+    <div ng-hide="sctrl.result.Name==null">
+        <br/>
+        <span><b>Name:&nbsp;</b></span><span ng-bind="sctrl.result.Name"></span><br/>
+        <span><b>Exchange:&nbsp;</b></span><span ng-bind="sctrl.result.Exchange"></span><br/>
+        <span><b>MarketCap:&nbsp;</b></span><span ng-bind="sctrl.result.MarketCap"></span><br/>
+        <span><b>LastPrice:&nbsp;</b></span><span ng-bind="sctrl.result.LastPrice"></span><br/>
+        <span><b>PercentChange:&nbsp;</b></span>
+        <span ng-class="{red:sctrl.result.PercentChange.indexOf('-')!= -1,green:sctrl.result.PercentChange.indexOf('-')== -1 }" ng-bind="sctrl.result.PercentChange"></span><br/>
+        <span><b>YearRange:&nbsp;</b></span><span ng-bind="sctrl.result.YearRange"></span><br/>
+
+        <table>
+            <tr><td><br/><br/><br/></td></tr>
+
+            <tr>
+                <td><input type="checkbox" class="checkbox big-checkbox" ng-model="sctrl.historicalDisplay"
+                           value="Get Historical"></td>
+                <td><span class="mark" style="align:center">Show Historical Data</span></td>
+
+            </tr>
+            <tr><td><br/><br/><br/></td></tr>
+        </table>
+
+        <div ng-show="sctrl.historicalDisplay">
+            <input type="text" placeholder="Enter Start Date" class="datePicker" id = "startDate" ng-model="sctrl.startDate">
+            <input type="text" placeholder="Enter Start Date" class="datePicker" id = "endDate" ng-model="sctrl.endDate">
+            <button class="btn btn-primary" ng-click="sctrl.getHistoricalData()">Go</button>
+            <br/><br/>
+        </div>
+        <div ng-show="sctrl.historicalDisplay">
+            <!--<span><pre><h5>Historical Data</h5></pre></span>-->
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Close</th>
+                </tr>
+                </thead>
+                <tr ng-repeat="row in sctrl.tableDataHistorical | orderBy : 'Date' ">
+                    <td>{{$index+1}}</td>
+                    <td>{{row.Date}}</td>
+                    <td>{{row.High}}</td>
+                    <td>{{row.Low}}</td>
+                    <td>{{row.Close}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+
+<!-- JS -->
+<!-- // <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script> -->
+
+
+</body>
+</html>
