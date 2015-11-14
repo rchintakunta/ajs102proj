@@ -1,5 +1,5 @@
 'use strict';
-angular.module('app.controllers', []).controller('StockCtrl', function ($scope, $http) {
+angular.module('app.controllers', ['chart.js']).controller('StockCtrl', function ($scope, $http) {
 
     var self = this;
     self.symbol = "";
@@ -7,6 +7,9 @@ angular.module('app.controllers', []).controller('StockCtrl', function ($scope, 
     self.endDate = "";
     self.result = {};
     self.tableDataHistorical = [];
+    self.Dates=[];
+    self.values=[];
+    self.scopeUrl=
 
     self.getData = function () {
 
@@ -25,7 +28,7 @@ angular.module('app.controllers', []).controller('StockCtrl', function ($scope, 
         $http.get(str1)
 
             .success(function (data, status, headers, config) {
-                console.log("success data, status="+ JSON.stringify(data) + status);
+                //console.log("success data, status="+ JSON.stringify(data) + status);
                 if (data.query.results == null) {
                     console.log("No Valid Results could be Returned!!")
                 }
@@ -33,9 +36,9 @@ angular.module('app.controllers', []).controller('StockCtrl', function ($scope, 
                     self.result.Name = data.query.results.quote.Name;
                     self.result.Exchange = data.query.results.quote.StockExchange;
                     self.result.MarketCap = data.query.results.quote.MarketCapitalization;
-                    self.result.LastPrice = data.query.results.quote.LastTradePriceOnly;
+                    self.result.LastPrice = "$"+ data.query.results.quote.LastTradePriceOnly;
                     self.result.PercentChange = data.query.results.quote.PercentChange;
-                    self.result.YearRange = data.query.results.quote.YearRange;
+                    self.result.YearRange = "$"+ data.query.results.quote.YearRange;
                 }
             })
 
@@ -63,16 +66,25 @@ angular.module('app.controllers', []).controller('StockCtrl', function ($scope, 
         var str2 = url.concat("?q=", dataHistorical);
         str2 = str2.concat("&format=json&diagnostics=true&env=store://datatables.org/alltableswithkeys&callback=");
 
-        console.log('startDate: ', self.startDate, ' endDate: ', self.endDate);
+        //console.log('startDate: ', self.startDate, ' endDate: ', self.endDate);
 
         $http.get(str2)
             .success(function (data, status, headers, config) {
-                console.log("success data historical, status=" + JSON.stringify(data) + status);
+                //console.log("success data historical, status=" + JSON.stringify(data) + status);
                 if (data.query.results == null) {
                     console.log("No Valid Historical Results could be Returned!!")
                 }
                 else {
                     self.tableDataHistorical = data.query.results.quote;
+                    $scope.labels=[];
+                    $scope.data=[];
+                    $scope.idata=[];
+                    angular.forEach(self.tableDataHistorical, function(item){
+                        $scope.labels.push(item.Date);
+                        $scope.idata.push(item.Close);
+                    })
+                    $scope.labels = $scope.labels.reverse();
+                    $scope.data.push($scope.idata.reverse());
                 }
             })
 
@@ -80,6 +92,12 @@ angular.module('app.controllers', []).controller('StockCtrl', function ($scope, 
                 var err = status + ", " + data;
                 self.result = "Historical Request failed: " + err;
             });
+
+        $scope.series = [];
+        $scope.series.push(self.symbol);
+        /*$scope.onClick = function (points, evt) {
+            console.log(points, evt);
+        };*/
     }
 
 
@@ -90,6 +108,9 @@ angular.module('app.controllers', []).controller('StockCtrl', function ($scope, 
         self.historicalDisplay = "";
         self.startDate = "";
         self.endDate = "";
+        $scope.labels=[];
+        $scope.data=[];
+
     }
 
 })
